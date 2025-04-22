@@ -3,13 +3,14 @@ import { Box } from "@mui/material";
 
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-//abcd
+
 import HomePage from "./pages/HomePage";
 import VenuesPage from "./pages/VenuesPage";
 import VenueDetailPage from "./pages/VenueDetailPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import NotFoundPage from "./pages/NotFoundPage";
+import ContactUs from "./pages/ContactUs";
 
 // Dashboards
 import UserDashboard from "./pages/dashboard/UserDashboard";
@@ -41,6 +42,7 @@ function App() {
           <Route path="/venues/:id" element={<VenueDetailPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/contact" element={<ContactUs />} />
 
           {/* Protected Dashboard Routes */}
           <Route

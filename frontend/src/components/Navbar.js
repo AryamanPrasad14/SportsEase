@@ -62,7 +62,7 @@ export default function Navbar() {
             About Us
           </Button>
           <Button component={RouterLink} to="/contact" color="inherit">
-            Contact
+            Contact Us
           </Button>
 
           {currentUser ? (
