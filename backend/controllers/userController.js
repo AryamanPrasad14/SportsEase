@@ -13,7 +13,9 @@ const registerUser = async (req, res) => {
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(200).json({ message: "User already exists", user: existingUser });
+      return res
+        .status(200)
+        .json({ message: "User already exists", user: existingUser });
     }
 
     const newUser = await User.create({
@@ -23,7 +25,9 @@ const registerUser = async (req, res) => {
       role,
     });
 
-    res.status(201).json({ message: "User stored successfully", user: newUser });
+    res
+      .status(201)
+      .json({ message: "User stored successfully", user: newUser });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -77,7 +81,9 @@ const bookVenue = async (req, res) => {
 // View user's bookings
 const getUserBookings = async (req, res) => {
   try {
-    const bookings = await Booking.find({ user: req.user.id }).populate("venue");
+    const bookings = await Booking.find({ user: req.user.id }).populate(
+      "venue"
+    );
     res.status(200).json(bookings);
   } catch (error) {
     res.status(500).json({ message: error.message });

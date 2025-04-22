@@ -1,5 +1,5 @@
-import { useState } from "react"
-import { useNavigate, Link as RouterLink } from "react-router-dom"
+import { useState } from "react";
+import { useNavigate, Link as RouterLink } from "react-router-dom";
 import {
   Container,
   Box,
@@ -14,15 +14,15 @@ import {
   Checkbox,
   FormControlLabel,
   Link,
-} from "@mui/material"
-import { Eye, EyeOff, Mail, Lock, User } from "lucide-react"
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth"
-import { auth, analytics } from "../firebase"
-import { logEvent } from "firebase/analytics"
-import axios from "axios"
+} from "@mui/material";
+import { Eye, EyeOff, Mail, Lock, User } from "lucide-react";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { auth, analytics } from "../firebase";
+import { logEvent } from "firebase/analytics";
+import axios from "axios";
 
 export default function RegisterPage() {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -30,84 +30,89 @@ export default function RegisterPage() {
     password: "",
     confirmPassword: "",
     agreeToTerms: false,
-  })
+  });
 
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [errors, setErrors] = useState({})
-  const [registerError, setRegisterError] = useState("")
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [registerError, setRegisterError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
-    const { name, value, checked } = e.target
+    const { name, value, checked } = e.target;
     setFormData({
       ...formData,
       [name]: name === "agreeToTerms" ? checked : value,
-    })
+    });
     if (errors[name]) {
       setErrors({
         ...errors,
         [name]: "",
-      })
+      });
     }
-  }
+  };
 
   const validateForm = () => {
-    const newErrors = {}
+    const newErrors = {};
 
-    if (!formData.name.trim()) newErrors.name = "Name is required"
-    if (!formData.email) newErrors.email = "Email is required"
-    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Email is invalid"
-    if (!formData.password) newErrors.password = "Password is required"
-    else if (formData.password.length < 6) newErrors.password = "Password must be at least 6 characters"
+    if (!formData.name.trim()) newErrors.name = "Name is required";
+    if (!formData.email) newErrors.email = "Email is required";
+    else if (!/\S+@\S+\.\S+/.test(formData.email))
+      newErrors.email = "Email is invalid";
+    if (!formData.password) newErrors.password = "Password is required";
+    else if (formData.password.length < 6)
+      newErrors.password = "Password must be at least 6 characters";
     if (formData.password !== formData.confirmPassword)
-      newErrors.confirmPassword = "Passwords do not match"
+      newErrors.confirmPassword = "Passwords do not match";
     if (!formData.agreeToTerms)
-      newErrors.agreeToTerms = "You must agree to the terms and conditions"
+      newErrors.agreeToTerms = "You must agree to the terms and conditions";
 
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setRegisterError("")
+    e.preventDefault();
+    setRegisterError("");
 
-    if (!validateForm()) return
+    if (!validateForm()) return;
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
 
     try {
       // Firebase registration
-      const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password)
-      const user = userCredential.user
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        formData.email,
+        formData.password
+      );
+      const user = userCredential.user;
 
       // Set displayName in Firebase
       await updateProfile(user, {
         displayName: formData.name,
-      })
+      });
 
       // Send user data to MongoDB backend
       await axios.post("http://localhost:5000/api/users/register", {
-        firebaseId: user.uid,
-        name: formData.name,
+        id: user.uid, // if using Firebase
+        name: user.displayName,
         email: user.email,
-        role: "user",
-      })
+      });
 
       // Firebase Analytics event
       logEvent(analytics, "sign_up", {
         method: "email_password",
-      })
+      });
 
-      navigate("/")
+      navigate("/");
     } catch (error) {
-      console.error("Registration error:", error)
-      setRegisterError(error.message)
+      console.error("Registration error:", error);
+      setRegisterError(error.message);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <Container maxWidth="sm" sx={{ py: 8 }}>
@@ -183,7 +188,9 @@ export default function RegisterPage() {
               ),
               endAdornment: (
                 <InputAdornment position="end">
-                  <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                  <IconButton
+                    onClick={() => setShowPassword(!showPassword)}
+                    edge="end">
                     {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                   </IconButton>
                 </InputAdornment>
@@ -209,8 +216,14 @@ export default function RegisterPage() {
               ),
               endAdornment: (
                 <InputAdornment position="end">
-                  <IconButton onClick={() => setShowConfirmPassword(!showConfirmPassword)} edge="end">
-                    {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  <IconButton
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    edge="end">
+                    {showConfirmPassword ? (
+                      <EyeOff size={20} />
+                    ) : (
+                      <Eye size={20} />
+                    )}
                   </IconButton>
                 </InputAdornment>
               ),
@@ -250,8 +263,7 @@ export default function RegisterPage() {
             variant="contained"
             size="large"
             disabled={isSubmitting}
-            sx={{ mt: 3, mb: 2 }}
-          >
+            sx={{ mt: 3, mb: 2 }}>
             {isSubmitting ? "Creating Account..." : "Sign Up"}
           </Button>
 
@@ -261,7 +273,11 @@ export default function RegisterPage() {
             <Typography variant="body2">
               Already have an account?{" "}
               <Link component={RouterLink} to="/login" underline="none">
-                <Typography variant="body2" component="span" color="primary" fontWeight="medium">
+                <Typography
+                  variant="body2"
+                  component="span"
+                  color="primary"
+                  fontWeight="medium">
                   Sign in
                 </Typography>
               </Link>
@@ -270,5 +286,5 @@ export default function RegisterPage() {
         </Box>
       </Paper>
     </Container>
-  )
+  );
 }
